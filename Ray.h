@@ -19,13 +19,9 @@ private:
 };
 
 Ray::Ray()
-{
-    origin = Vect3();
-    direction = Vect3();
-}
+: origin(Vect3()), direction(Vect3()) { }
 
-Ray::Ray(Vect3 origin, Vect3 direction)
-{
+Ray::Ray(Vect3 origin, Vect3 direction) {
     this->origin = origin;
     this->direction = direction;
 }

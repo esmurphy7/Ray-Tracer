@@ -12,20 +12,18 @@ class Sphere: public SceneObject
 {
 public:
     Sphere();
-    Sphere(Vect3 center, double surfaceColor, double emission, double radius);
-
-private:
+    Sphere(Vect3 center, RGB_Color surfaceColor, double emission, double radius);
     double radius;
 };
 
 Sphere::Sphere()
-: SceneObject()
+        : SceneObject()
 {
     radius = 0;
 }
 
-Sphere::Sphere(Vect3 center, double surfaceColor, double emission, double radius)
-: SceneObject(center, surfaceColor, emission)
+Sphere::Sphere(Vect3 center, RGB_Color surfaceColor, double emission, double radius)
+        : SceneObject(center, surfaceColor, emission)
 {
     this->radius = radius;
 }
