@@ -10,20 +10,18 @@
 class Ray
 {
 public:
-    Ray();
-    Ray(Vect3 origin, Vect3 direction);
-
-private:
     Vect3 origin;
     Vect3 direction;
+    Ray();
+    Ray(Vect3 origin, Vect3 direction);
 };
 
 Ray::Ray()
 : origin(Vect3()), direction(Vect3()) { }
 
-Ray::Ray(Vect3 origin, Vect3 direction) {
-    this->origin = origin;
-    this->direction = direction;
-}
+Ray::Ray(Vect3 origin, Vect3 direction)
+    : origin(Vect3(origin)),
+      direction(Vect3(direction))
+{}
 
 #endif //CSC305_A1_RAY_H

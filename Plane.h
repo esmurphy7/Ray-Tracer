@@ -12,13 +12,13 @@ class Plane: SceneObject
 {
 public:
     Vect3 normal;
-    double width, height;
-    Plane(Vect3 norm, double w, double h);
-    Plane(Vect3 center, RGB_Color surfaceColor, double emission, Vect3 normal, double width,
-              double height);
+    float width, height;
+    Plane(Vect3 norm, float w, float h);
+    Plane(Vect3 center, RGB_Color surfaceColor, float emission, Vect3 normal, float width,
+          float height);
 };
 
-Plane::Plane(Vect3 norm, double w, double h)
+Plane::Plane(Vect3 norm, float w, float h)
         : SceneObject()
 {
     normal = norm;
@@ -26,7 +26,7 @@ Plane::Plane(Vect3 norm, double w, double h)
     height = h;
 }
 
-Plane::Plane(Vect3 center, RGB_Color surfaceColor, double emission, Vect3 normal, double width, double height)
+Plane::Plane(Vect3 center, RGB_Color surfaceColor, float emission, Vect3 normal, float width, float height)
         : SceneObject(center, surfaceColor, emission)
 {
     this->normal = normal;

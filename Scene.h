@@ -23,31 +23,31 @@ class Scene
 {
 public:
     std::vector<std::vector<RGB_Color>> pixelmap;
-    std::vector<SceneObject> objects;
+    std::vector<SceneObject*> objects;
     Scene(unsigned int imagePlanew, unsigned int imagePlaneh, double focalLength);
-    void generateRays();
+    void traceRays();
 
 private:
     ImagePlane imgPlane;
-    Camera camera;
+    Camera camera = Camera(Vect3(0.0f, 0.0f, -10.0f));
 };
 
 Scene::Scene(unsigned int imagePlanew, unsigned int imagePlaneh, double focalLength)
 {
     // create the image plane at the origin
     imgPlane = {
-            Vect3(0,0,0),   // position
-            Vect3(0,0,1),   // normal
+            Vect3(0.0f, 0.0f, 0.0f),   // position
+            Vect3(0.0f, 0.0f, 1.0f),   // normal
             imagePlanew,    // width
             imagePlaneh     // height
     };
 
     // initialize the camera at the position specified by the focal length
-    Vect3 pos = imgPlane.position - imgPlane.normal*focalLength;
-    camera = Camera(pos);
+    Vect3 pos = imgPlane.position.subtract(imgPlane.normal*focalLength);
+    //camera = Camera(pos);
 
     // initialize object set
-    objects = std::vector<SceneObject>();
+    objects = std::vector<SceneObject*>();
 
     // initialize pixel map
     pixelmap = std::vector<std::vector<RGB_Color>>(imagePlaneh);
@@ -63,16 +63,36 @@ Scene::Scene(unsigned int imagePlanew, unsigned int imagePlaneh, double focalLen
     }
 }
 
-void Scene::generateRays()
+Vect3 VectorSubtract(Vect3 v1, Vect3 v2)
+{
+    Vect3 result = Vect3();
+    result.x = v1.x - v2.x;
+    result.y = v1.y - v2.y;
+    result.z = v1.z - v2.z;
+    return result;
+}
+
+void Scene::traceRays()
 {
     // for each pixel on the image plane, generate a ray with its origin at the camera
     for(int i=0; i<pixelmap.size(); i++)
     {
         for(int j=0; j<pixelmap[i].size(); j++)
         {
-            Vect3 pixelPos = Vect3(j, i, imgPlane.position.z);
-            Ray ray = Ray(camera.position, pixelPos - camera.position);
-            int bp = 0;
+            float fi = (float)i;
+            float fj = (float)j;
+            float imgZ = imgPlane.position.z;
+            Vect3 pixelPos = Vect3(fj, fi, imgZ);
+            Vect3 rayDirection = VectorSubtract(pixelPos, camera.position);
+            Ray ray = Ray(camera.position, rayDirection);
+
+            int closest_t = 0;
+            /*for(int o=0; o<objects.size(); o++)
+            {
+                Vect3 hitPoint = objects[o]->intersects(ray);
+
+            }
+             */
         }
     }
 }

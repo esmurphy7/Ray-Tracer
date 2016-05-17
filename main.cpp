@@ -36,11 +36,11 @@ int main(int argc, char **argv)
 
     // insert each object into the scene
     scene = new Scene(WINDOW_WIDTH, WINDOW_HEIGHT, FOCAL_LENGTH);
-    SceneObject object = sphere_1;
+    SceneObject* object = &sphere_1;
     scene->objects.push_back(object);
 
     // ray trace
-    scene->generateRays();
+    scene->traceRays();
 
     // init and build window
     glutInit(&argc, argv);
