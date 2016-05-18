@@ -1,7 +1,6 @@
 #include <iostream>
 #include <GL/freeglut.h>
-#include <assert.h>
-#include <limits.h>
+#include <fstream>
 #include "Scene.h"
 #include "Sphere.h"
 #include "Vec3.h"
@@ -14,7 +13,7 @@ using namespace std;
 
 Scene* scene;
 
-void render()
+void renderToGL()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -31,6 +30,37 @@ void render()
     glutSwapBuffers();
 }
 
+void renderToPPM()
+{
+    // open ppm file
+    ofstream ppmFile;
+    ppmFile.open ("csc305-a1.ppm");
+
+    std::vector<std::vector<RGB_Color>> pixelmap = scene->pixelmap;
+
+    // write the ppm header to the file
+   ppmFile << "P3\n" << pixelmap.size() << " " << pixelmap[0].size() << "\n255\n";
+
+    // render each pixel in the scene's pixelmap
+    for(int i=0; i<pixelmap.size(); i++)
+    {
+        for(int j=0; j<pixelmap[i].size(); j++)
+        {
+            float r = float(j) / float(pixelmap.size());
+            float g = float(i) / pixelmap[i].size();
+            float b = 0.2f;
+            int ir = int(255.99*r);
+            int ig = int(255.99*g);
+            int ib = int(255.99*b);
+
+            ppmFile << ir << " " << ig << " " << ib << "\n";
+        }
+    }
+
+    // close ppm image file
+    ppmFile.close();
+}
+
 int main(int argc, char **argv)
 {
     // build objects
@@ -45,12 +75,16 @@ int main(int argc, char **argv)
     // ray trace
     scene->traceRays();
 
+    renderToPPM();
+
     // init and build window
+    /*
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
     glutInitWindowPosition(0, 0);
     glutInitWindowSize(WINDOW_WIDTH,WINDOW_HEIGHT);
     glutCreateWindow("CSC305-A1");
-    glutDisplayFunc(render);
+    glutDisplayFunc(renderToGL);
     glutMainLoop();
+     */
 }
