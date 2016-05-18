@@ -18,7 +18,7 @@ public:
     SceneObject();
     SceneObject(Vec3f center, RGB_Color surfaceColor, float emission);
     virtual ~SceneObject() {}
-    virtual Vec3f intersects(Ray ray) = 0;
+    virtual bool intersects(Ray ray) = 0;
 };
 
 SceneObject::SceneObject()

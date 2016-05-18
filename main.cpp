@@ -8,8 +8,8 @@
 
 using namespace std;
 
-#define WINDOW_WIDTH    500
-#define WINDOW_HEIGHT   500
+#define WINDOW_WIDTH    200
+#define WINDOW_HEIGHT   100
 #define FOCAL_LENGTH    10
 
 Scene* scene;
@@ -35,7 +35,8 @@ void renderToPPM(std::vector<std::vector<RGB_Color>> pixelmap)
 {
     // open ppm file
     PPM_File ppmFile;
-    ppmFile.open("csc305-a1.ppm", pixelmap.size(), pixelmap[0].size());
+    // filename, width, height
+    ppmFile.open("csc305-a1.ppm", pixelmap[0].size(), pixelmap.size());
 
     // render each pixel in the scene's pixelmap
     for(int i=0; i<pixelmap.size(); i++)
@@ -45,7 +46,8 @@ void renderToPPM(std::vector<std::vector<RGB_Color>> pixelmap)
             float r = float(j) / float(pixelmap.size());
             float g = float(i) / pixelmap[i].size();
             float b = 0.2f;
-            ppmFile.writeColor(r, g, b);
+            RGB_Color color = pixelmap[i][j];
+            ppmFile.writeColor(color.R, color.G, color.B);
         }
     }
 
@@ -57,7 +59,7 @@ int main(int argc, char **argv)
 {
     // build objects
     // center, surface color, emission, radius
-    Sphere sphere_1 = Sphere(Vec3f(20.0f,20.0f,20.0f), RGB_Color(1,0,0), 0.0f, 10.0f);
+    Sphere sphere_1 = Sphere(Vec3f(0.0f,0.0f,-1.0f), RGB_Color(1.0f,0.0f,0.0f), 0.0f, 0.5f);
 
     // insert each object into the scene
     scene = new Scene(WINDOW_WIDTH, WINDOW_HEIGHT, FOCAL_LENGTH);

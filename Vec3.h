@@ -153,13 +153,23 @@ public:
     //      return dx+dy+dz;
     // }
     //
-    static T getDistance(const Vec3 &v1, const Vec3 &v2)
+    static T distance(const Vec3 &v1, const Vec3 &v2)
     {
         T dx = v2.x - v1.x;
         T dy = v2.y - v1.y;
         T dz = v2.z - v1.z;
 
         return sqrt(dx * dx + dy * dy + dz * dz);
+    }
+
+    T magnitude()
+    {
+        return sqrt((x * x) + (y * y) + (z * z));
+    }
+
+    static Vec3<T> unitVector(Vec3<T> v)
+    {
+        return v / v.magnitude();
     }
 
     // Method to display the vector so you can easily check the values
@@ -198,7 +208,7 @@ public:
         z -= vector.z;
     }
 
-    // Overloaded multiplication operator to multiply two Vec3s together
+    // Overloaded mication operator to multiply two Vec3s together
     Vec3 operator*(const Vec3 &vector) const
     {
         return Vec3<T>(x * vector.x, y * vector.y, z * vector.z);
