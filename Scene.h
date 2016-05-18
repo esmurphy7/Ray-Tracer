@@ -6,6 +6,8 @@
 #define CSC305_A1_SCENE_H
 
 #include <vector>
+#include <iomanip>
+#include <GL/gl.h>
 #include "SceneObject.h"
 #include "RGB_Color.h"
 #include "Camera.h"
@@ -13,8 +15,8 @@
 
 struct ImagePlane
 {
-    Vect3 position;
-    Vect3 normal;
+    Vec3f position;
+    Vec3f normal;
     unsigned int width;
     unsigned int height;
 };
@@ -28,22 +30,23 @@ public:
     void traceRays();
 
 private:
+    Camera camera;
     ImagePlane imgPlane;
-    Camera camera = Camera(Vect3(0.0f, 0.0f, -10.0f));
 };
 
 Scene::Scene(unsigned int imagePlanew, unsigned int imagePlaneh, double focalLength)
 {
+    camera = Camera(Vec3f(0.0f, 0.0f, 0.0f));
     // create the image plane at the origin
     imgPlane = {
-            Vect3(0.0f, 0.0f, 0.0f),   // position
-            Vect3(0.0f, 0.0f, 1.0f),   // normal
+            Vec3f(0.0f, 0.0f, 10.0f),   // position
+            Vec3f(0.0f, 0.0f, 1.0f),   // normal
             imagePlanew,    // width
             imagePlaneh     // height
     };
 
     // initialize the camera at the position specified by the focal length
-    Vect3 pos = imgPlane.position.subtract(imgPlane.normal*focalLength);
+    Vec3f pos = imgPlane.position - imgPlane.normal*focalLength;
     //camera = Camera(pos);
 
     // initialize object set
@@ -58,18 +61,9 @@ Scene::Scene(unsigned int imagePlanew, unsigned int imagePlaneh, double focalLen
         //DEBUG: fill each cell with test rgb value
         for(int j=0; j < imagePlanew; j++)
         {
-            pixelmap[i][j] = RGB_Color(0.0, 0.0, 0.0);
+            pixelmap[i][j] = RGB_Color(GL_ZERO, GL_ZERO, GL_ZERO);
         }
     }
-}
-
-Vect3 VectorSubtract(Vect3 v1, Vect3 v2)
-{
-    Vect3 result = Vect3();
-    result.x = v1.x - v2.x;
-    result.y = v1.y - v2.y;
-    result.z = v1.z - v2.z;
-    return result;
 }
 
 void Scene::traceRays()
@@ -81,18 +75,19 @@ void Scene::traceRays()
         {
             float fi = (float)i;
             float fj = (float)j;
-            float imgZ = imgPlane.position.z;
-            Vect3 pixelPos = Vect3(fj, fi, imgZ);
-            Vect3 rayDirection = VectorSubtract(pixelPos, camera.position);
-            Ray ray = Ray(camera.position, rayDirection);
+            float imgZ = imgPlane.position.getZ();
+            Vec3f pixelPos = Vec3f(fj, fi, imgZ);
+            Vec3f rayDirection = pixelPos - camera.position;
+            Vec3f rayOrigin = camera.position;
+            Ray ray = Ray(rayOrigin, rayDirection);
 
             int closest_t = 0;
-            /*for(int o=0; o<objects.size(); o++)
+            for(int o=0; o<objects.size(); o++)
             {
-                Vect3 hitPoint = objects[o]->intersects(ray);
+                Vec3f hitPoint, normal = objects[o]->intersects(ray);
 
+                int bp=0;
             }
-             */
         }
     }
 }

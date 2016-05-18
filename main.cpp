@@ -1,7 +1,10 @@
 #include <iostream>
 #include <GL/freeglut.h>
+#include <assert.h>
+#include <limits.h>
 #include "Scene.h"
 #include "Sphere.h"
+#include "Vec3.h"
 
 using namespace std;
 
@@ -32,7 +35,7 @@ int main(int argc, char **argv)
 {
     // build objects
     // center, surface color, emission, radius
-    Sphere sphere_1 = Sphere(Vect3(20,20,20), RGB_Color(1,0,0), 0, 10);
+    Sphere sphere_1 = Sphere(Vec3f(20.0f,20.0f,20.0f), RGB_Color(1,0,0), 0.0f, 10.0f);
 
     // insert each object into the scene
     scene = new Scene(WINDOW_WIDTH, WINDOW_HEIGHT, FOCAL_LENGTH);

@@ -5,23 +5,24 @@
 #ifndef CSC305_A1_RAY_H
 #define CSC305_A1_RAY_H
 
-#include "Vect3.h"
+#include "Vec3.h"
 
 class Ray
 {
 public:
-    Vect3 origin;
-    Vect3 direction;
+    Vec3f origin;
+    Vec3f direction;
     Ray();
-    Ray(Vect3 origin, Vect3 direction);
+    Ray(Vec3f origin, Vec3f direction);
 };
 
 Ray::Ray()
-: origin(Vect3()), direction(Vect3()) { }
+: origin(Vec3f()), direction(Vec3f()) { }
 
-Ray::Ray(Vect3 origin, Vect3 direction)
-    : origin(Vect3(origin)),
-      direction(Vect3(direction))
-{}
+Ray::Ray(Vec3f origin, Vec3f direction)
+{
+    this->origin=origin;
+    this->direction=direction;
+}
 
 #endif //CSC305_A1_RAY_H

@@ -5,20 +5,20 @@
 #ifndef CSC305_A1_PLANE_H
 #define CSC305_A1_PLANE_H
 
-#include "Vect3.h"
+#include "Vec3.h"
 #include "SceneObject.h"
 
 class Plane: SceneObject
 {
 public:
-    Vect3 normal;
+    Vec3f normal;
     float width, height;
-    Plane(Vect3 norm, float w, float h);
-    Plane(Vect3 center, RGB_Color surfaceColor, float emission, Vect3 normal, float width,
+    Plane(Vec3f norm, float w, float h);
+    Plane(Vec3f center, RGB_Color surfaceColor, float emission, Vec3f normal, float width,
           float height);
 };
 
-Plane::Plane(Vect3 norm, float w, float h)
+Plane::Plane(Vec3 norm, float w, float h)
         : SceneObject()
 {
     normal = norm;
@@ -26,7 +26,7 @@ Plane::Plane(Vect3 norm, float w, float h)
     height = h;
 }
 
-Plane::Plane(Vect3 center, RGB_Color surfaceColor, float emission, Vect3 normal, float width, float height)
+Plane::Plane(Vec3f center, RGB_Color surfaceColor, float emission, Vec3f normal, float width, float height)
         : SceneObject(center, surfaceColor, emission)
 {
     this->normal = normal;

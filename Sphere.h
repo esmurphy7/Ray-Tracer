@@ -5,7 +5,7 @@
 #ifndef CSC305_A1_SPHERE_H
 #define CSC305_A1_SPHERE_H
 
-#include "Vect3.h"
+#include "Vec3.h"
 #include "SceneObject.h"
 
 class Sphere: public SceneObject
@@ -13,33 +13,62 @@ class Sphere: public SceneObject
 public:
     float radius;
     Sphere();
-    Sphere(Vect3 center, RGB_Color surfaceColor, float emission, float radius);
-    Vect3 intersects(Ray ray);
+    Sphere(Vec3f center, RGB_Color surfaceColor, float emission, float radius);
+    Vec3f intersects(Ray ray);
 };
 
 Sphere::Sphere()
         : SceneObject(),
-          radius(0)
+          radius(0.0f)
 {}
 
-Sphere::Sphere(Vect3 center, RGB_Color surfaceColor, float emission, float radius)
+Sphere::Sphere(Vec3f center, RGB_Color surfaceColor, float emission, float radius)
         : SceneObject(center, surfaceColor, emission),
           radius(radius)
 {}
 
-Vect3 Sphere::intersects(Ray ray)
+Vec3f Sphere::intersects(Ray ray)
 {
-    float a = ray.direction.dot(ray.direction);
-    float b = ray.direction.dot(ray.origin);
-    float c = ray.origin.dot(ray.origin) - 1.0f;
+    Vec3f s = ray.origin;
+    Vec3f d = ray.direction;
+    Vec3f c = center;
+    float r = radius;
 
-    float t0 = -b + sqrt((b*b) - a*c) / a;
-    float t1 = -b + sqrt((b*b) - a*c) / a;
+    // Calculate ray start's offset from the sphere center
+    Vec3f p = s - c;
 
-    Vect3 hit0 = ray.origin.subtract(ray.direction*t0);
-    Vect3 hit1 = ray.origin.subtract(ray.direction*t1);
+    float rSquared = r * r;
+    float p_d = Vec3f::dotProduct(p, d);
 
-    int bp=0;
+    // The sphere is behind or surrounding the start point.
+    if(p_d < 0 || Vec3f::dotProduct(p, p) < rSquared)
+        return Vec3f();
+
+    // Flatten p into the plane passing through c perpendicular to the ray.
+    // This gives the closest approach of the ray to the center.
+    Vec3f a = p - d*p_d;
+
+    float aSquared = Vec3f::dotProduct(a, a);
+
+    // Closest approach is outside the sphere.
+    if(aSquared > rSquared)
+        return Vec3f();
+
+    // Calculate distance from plane where ray enters/exits the sphere.
+    float h = sqrtf(rSquared - aSquared);
+
+    // Calculate intersection point relative to sphere center.
+    Vec3f i = a - d*h;
+
+    Vec3f intersection = c + i;
+    Vec3f normal = i/r;
+    // We've taken a shortcut here to avoid a second square root.
+    // Note numerical errors can make the normal have length slightly different from 1.
+    // If you need higher precision, you may need to perform a conventional normalization.
+
+    intersection.print("intersection");
+    return intersection, normal;
+
 }
 
 #endif //CSC305_A1_SPHERE_H
