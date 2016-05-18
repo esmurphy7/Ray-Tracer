@@ -4,6 +4,7 @@
 #include "Scene.h"
 #include "Sphere.h"
 #include "Vec3.h"
+#include "PPM_File.h"
 
 using namespace std;
 
@@ -30,16 +31,11 @@ void renderToGL()
     glutSwapBuffers();
 }
 
-void renderToPPM()
+void renderToPPM(std::vector<std::vector<RGB_Color>> pixelmap)
 {
     // open ppm file
-    ofstream ppmFile;
-    ppmFile.open ("csc305-a1.ppm");
-
-    std::vector<std::vector<RGB_Color>> pixelmap = scene->pixelmap;
-
-    // write the ppm header to the file
-   ppmFile << "P3\n" << pixelmap.size() << " " << pixelmap[0].size() << "\n255\n";
+    PPM_File ppmFile;
+    ppmFile.open("csc305-a1.ppm", pixelmap.size(), pixelmap[0].size());
 
     // render each pixel in the scene's pixelmap
     for(int i=0; i<pixelmap.size(); i++)
@@ -49,11 +45,7 @@ void renderToPPM()
             float r = float(j) / float(pixelmap.size());
             float g = float(i) / pixelmap[i].size();
             float b = 0.2f;
-            int ir = int(255.99*r);
-            int ig = int(255.99*g);
-            int ib = int(255.99*b);
-
-            ppmFile << ir << " " << ig << " " << ib << "\n";
+            ppmFile.writeColor(r, g, b);
         }
     }
 
@@ -75,7 +67,7 @@ int main(int argc, char **argv)
     // ray trace
     scene->traceRays();
 
-    renderToPPM();
+    renderToPPM(scene->pixelmap);
 
     // init and build window
     /*

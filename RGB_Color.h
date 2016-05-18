@@ -8,9 +8,9 @@
 class RGB_Color
 {
 public:
-    GLfloat R, G, B;
+    float R, G, B;
     RGB_Color();
-    RGB_Color(GLfloat R, GLfloat G, GLfloat B);
+    RGB_Color(float R, float G, float B);
 };
 
 RGB_Color::RGB_Color()
@@ -18,7 +18,7 @@ RGB_Color::RGB_Color()
     R, G, B = 0;
 }
 
-RGB_Color::RGB_Color(GLfloat R, GLfloat G, GLfloat B)
+RGB_Color::RGB_Color(float R, float G, float B)
 {
     this->R = R;
     this->G = G;
