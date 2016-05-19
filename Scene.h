@@ -13,6 +13,8 @@
 #include "Camera.h"
 #include "Ray.h"
 
+const RGB_Color backgroundColor = RGB_Color(0.0f, 0.0f, 0.0f);
+
 struct ImagePlane
 {
     Vec3f position;
@@ -58,10 +60,10 @@ Scene::Scene(unsigned int imagePlanew, unsigned int imagePlaneh, double focalLen
     {
         pixelmap[i] = std::vector<RGB_Color>(imagePlanew);
 
-        //DEBUG: fill each cell with test rgb value
+        //initialize pixelmap to background color
         for(int j=0; j < imagePlanew; j++)
         {
-            pixelmap[i][j] = RGB_Color(0.0f, 0.0f, 0.0f);
+            pixelmap[i][j] = backgroundColor;
         }
     }
 }
@@ -101,7 +103,7 @@ void Scene::traceRays()
                 bool hit = objects[o]->intersects(ray);
                 if(hit)
                 {
-                    color = RGB_Color(1.0f, 0.0f, 0.0f);
+                    color = objects[o]->surfaceColor;
                     break;
                 }
             }
