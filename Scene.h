@@ -10,7 +10,6 @@
 #include <GL/gl.h>
 #include "SceneObject.h"
 #include "RGB_Color.h"
-#include "Camera.h"
 #include "Ray.h"
 
 const RGB_Color backgroundColor = RGB_Color(0.0f, 0.0f, 0.0f);
@@ -23,12 +22,20 @@ struct ImagePlane
     unsigned int height;
 };
 
+struct Camera
+{
+    Vec3f position;
+    Vec3f forward;
+    Vec3f up;
+    Vec3f right;
+};
+
 class Scene
 {
 public:
     std::vector<std::vector<RGB_Color>> pixelmap;
     std::vector<SceneObject*> objects;
-    Scene(unsigned int imagePlanew, unsigned int imagePlaneh, double focalLength);
+    Scene(unsigned int width, unsigned int height, double focalLength);
     void traceRays();
 
 private:
@@ -36,32 +43,36 @@ private:
     ImagePlane imgPlane;
 };
 
-Scene::Scene(unsigned int imagePlanew, unsigned int imagePlaneh, double focalLength)
+Scene::Scene(unsigned int width, unsigned int height, double focalLength)
 {
-    camera = Camera(Vec3f(0.0f, 0.0f, 0.0f));
-    // create the image plane at the origin
-    imgPlane = {
-            Vec3f(0.0f, 0.0f, -1.0f),   // position
-            Vec3f(0.0f, 0.0f, -1.0f),   // normal
-            4,    // width
-            2     // height
+    // initialize camera
+    camera = {
+            Vec3f(0.0f, 0.0f, 0.0f),    // position
+            Vec3f(0.0f, 0.0f, -1.0f),   // forward
+            Vec3f(0.0f, 1.0f, 0.0f),    // up
+            Vec3f(1.0f, 0.0f, 0.0f),    // right
     };
 
-    // initialize the camera at the position specified by the focal length
-    Vec3f pos = imgPlane.position - imgPlane.normal*focalLength;
-    //camera = Camera(pos);
+    // initialize image plane at position specified by focal length
+    Vec3f pos = camera.position + Vec3f(0.0f, 0.0f, -1.0f)*focalLength;
+    imgPlane = {
+            pos,                        // position
+            Vec3f(0.0f, 0.0f, -1.0f),   // normal
+            4,                          // width
+            2                           // height
+    };
 
     // initialize object set
     objects = std::vector<SceneObject*>();
 
     // initialize pixel map
-    pixelmap = std::vector<std::vector<RGB_Color>>(imagePlaneh);
-    for(int i=0; i < imagePlaneh; i++)
+    pixelmap = std::vector<std::vector<RGB_Color>>(height);
+    for(int i=0; i < height; i++)
     {
-        pixelmap[i] = std::vector<RGB_Color>(imagePlanew);
+        pixelmap[i] = std::vector<RGB_Color>(width);
 
         //initialize pixelmap to background color
-        for(int j=0; j < imagePlanew; j++)
+        for(int j=0; j < width; j++)
         {
             pixelmap[i][j] = backgroundColor;
         }

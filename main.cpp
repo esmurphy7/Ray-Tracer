@@ -8,9 +8,9 @@
 
 using namespace std;
 
-#define WINDOW_WIDTH    200
-#define WINDOW_HEIGHT   100
-#define FOCAL_LENGTH    10
+#define SCENE_WIDTH    200
+#define SCENE_HEIGHT   100
+#define FOCAL_LENGTH    1
 
 Scene* scene;
 
@@ -63,7 +63,7 @@ int main(int argc, char **argv)
     Sphere sphere_2 = Sphere(Vec3f(0.5f,0.5f,-1.0f), RGB_Color(0.0f,0.0f,0.0f), 0.0f, 0.3f);
 
     // insert each object into the scene
-    scene = new Scene(WINDOW_WIDTH, WINDOW_HEIGHT, FOCAL_LENGTH);
+    scene = new Scene(SCENE_WIDTH, SCENE_HEIGHT, FOCAL_LENGTH);
     SceneObject* object = &sphere_1;
     scene->objects.push_back(object);
     object = &sphere_2;
@@ -79,7 +79,7 @@ int main(int argc, char **argv)
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
     glutInitWindowPosition(0, 0);
-    glutInitWindowSize(WINDOW_WIDTH,WINDOW_HEIGHT);
+    glutInitWindowSize(SCENE_WIDTH,SCENE_HEIGHT);
     glutCreateWindow("CSC305-A1");
     glutDisplayFunc(renderToGL);
     glutMainLoop();
