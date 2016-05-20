@@ -8,6 +8,7 @@
 #include <vector>
 #include <iomanip>
 #include <GL/gl.h>
+#include <limits>
 #include "SceneObject.h"
 #include "RGB_Color.h"
 #include "Ray.h"
@@ -108,22 +109,35 @@ void Scene::traceRays()
             Vec3f colorVec = Vec3f(1.0f, 1.0f, 1.0f)*(1.0f-t) + Vec3f(0.5f, 0.7f, 1.0f)*t;
             RGB_Color color = RGB_Color(colorVec.getX(), colorVec.getY(), colorVec.getZ());
 
-            // check if the ray has intersected an object in the scene
+            // find the closest object that the ray will intersect
+            float t_max = std::numeric_limits<float>::max();    // only consider values of t less than max
+            float t_min = 0.0f;                                 // only consider values of t greater than min
+            HitRecord hitRecord;                                // information on any hits that occured
+            int hitIndex = -1;                                  // index of closest object hit
+            float closest_t = t_max;                            // t value of closest hit point
             for(int o=0; o<objects.size(); o++)
             {
-                t = objects[o]->intersects(ray);
-                if(t > 0.0f)
+                // find intersection point that is closer than the closest so far
+                bool hit = objects[o]->intersects(t_min, closest_t, ray, hitRecord);
+                if(hit)
                 {
-                    Vec3f objectNormal = ray.pointAt(t) - objects[o]->center;
-                    objectNormal.normalize();
-
-                    colorVec = Vec3f(objectNormal.getX()+1, objectNormal.getY()+1, objectNormal.getZ()+1);
-                    colorVec = colorVec*0.5f;
-
-                    color = RGB_Color(colorVec.getX(), colorVec.getY(), colorVec.getZ());
-                    //color = objects[o]->surfaceColor;
-                    break;
+                    // record closest t value and index of object hit
+                    closest_t = hitRecord.t;
+                    hitIndex = o;
                 }
+            }
+
+            // color the pixel if it was hit
+            if(hitIndex != -1)
+            {
+                Vec3f objectNormal = ray.pointAt(closest_t) - objects[hitIndex]->center;
+                objectNormal.normalize();
+
+                // color the pixel relative to the object's normal vector
+                colorVec = Vec3f(objectNormal.getX()+1, objectNormal.getY()+1, objectNormal.getZ()+1);
+                colorVec = colorVec*0.5f;
+
+                color = RGB_Color(colorVec.getX(), colorVec.getY(), colorVec.getZ());
             }
 
             pixelmap[i][j] = color;

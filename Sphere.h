@@ -14,7 +14,7 @@ public:
     float radius;
     Sphere();
     Sphere(Vec3f center, RGB_Color surfaceColor, float emission, float radius);
-    float intersects(Ray ray);
+    bool intersects(float t_min, float t_max, Ray ray, HitRecord& hitRecord);
 };
 
 Sphere::Sphere()
@@ -27,7 +27,7 @@ Sphere::Sphere(Vec3f center, RGB_Color surfaceColor, float emission, float radiu
           radius(radius)
 {}
 
-float Sphere::intersects(Ray ray)
+bool Sphere::intersects(float t_min, float t_max, Ray ray, HitRecord& hitRecord)
 {
     Vec3f center_offset = ray.origin - center;
     float a = Vec3f::dotProduct(ray.direction, ray.direction);
@@ -39,13 +39,31 @@ float Sphere::intersects(Ray ray)
     // no solution
     if(discriminant < 0.0f)
     {
-        return -1.0f;
+        return false;
     }
     // 1 or 2 solutions
     else
     {
-        float t = float((-b - sqrt(discriminant)) / (2.0f*a));
-        return t;
+        // check if negative discriminant is within limits
+        float t = float((-b - sqrt(discriminant)) / 2.0f*a);
+        if(t_min < t && t < t_max)
+        {
+            hitRecord.t = t;
+            hitRecord.point = ray.pointAt(t);
+            hitRecord.normal = (hitRecord.point - center) / radius;
+            return true;
+        }
+
+        // check if positive discriminant is within limits
+        t = float((-b + sqrt(discriminant)) / 2.0f*a);
+        if(t_min < t && t < t_max)
+        {
+            hitRecord.t = t;
+            hitRecord.point = ray.pointAt(t);
+            hitRecord.normal = (hitRecord.point - center) / radius;
+            return true;
+        }
+        return false;
     }
 }
 
