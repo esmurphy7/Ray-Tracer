@@ -45,7 +45,8 @@ bool Sphere::intersects(float t_min, float t_max, Ray ray, HitRecord& hitRecord)
     else
     {
         // check if negative discriminant is within limits
-        float t = float((-b - sqrt(discriminant)) / 2.0f*a);
+        //float t = float((-b - sqrt(discriminant)) / 2.0f*a);
+        float t = float((-b - sqrt(b*b - a*c)/a));
         if(t_min < t && t < t_max)
         {
             hitRecord.t = t;
@@ -55,7 +56,8 @@ bool Sphere::intersects(float t_min, float t_max, Ray ray, HitRecord& hitRecord)
         }
 
         // check if positive discriminant is within limits
-        t = float((-b + sqrt(discriminant)) / 2.0f*a);
+        //t = float((-b + sqrt(discriminant)) / 2.0f*a);
+        t = float((-b + sqrt(b*b - a*c)/a));
         if(t_min < t && t < t_max)
         {
             hitRecord.t = t;
