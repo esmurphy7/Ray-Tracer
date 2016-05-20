@@ -86,7 +86,7 @@ Scene::Scene(unsigned int width, unsigned int height, double focalLength)
 void Scene::traceRays()
 {
     // store the position of the top-left corner of the image plane
-    Vec3f top_left_corner = Vec3f(imgPlane.position.getX() - imgPlane.width*0.5f,
+    Vec3f bottom_left_corner = Vec3f(imgPlane.position.getX() - imgPlane.width*0.5f,
                                   imgPlane.position.getY() - imgPlane.height*0.5f,
                                   imgPlane.position.getZ());
 
@@ -110,7 +110,7 @@ void Scene::traceRays()
 
                 // create ray at position of camera
                 // use scaled directional vectors to define ray's direction
-                Ray ray = Ray(camera.position, top_left_corner + horizontal*u + vertical*v - camera.position);
+                Ray ray = Ray(camera.position, bottom_left_corner + horizontal*u + vertical*v - camera.position);
 
                 // get the color and contribute it to average
                 RGB_Color colorSample = calculateColor(ray);

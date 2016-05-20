@@ -20,9 +20,9 @@ void renderToGL()
 
     // render each pixel in the scene's pixelmap to the glut window
     std::vector<std::vector<RGB_Color>> pixelmap = scene->pixelmap;
-    for(int i=0; i<pixelmap.size(); i++)
+    for(int i=pixelmap.size()-1; i<=0; i--)
     {
-        for(int j=0; j<pixelmap[i].size(); j++)
+        for(int j=pixelmap[i].size()-1; j>=0; j--)
         {
             glColor3f(pixelmap[i][j].R, pixelmap[i][j].G, pixelmap[i][j].B);
         }
@@ -39,13 +39,10 @@ void renderToPPM(std::vector<std::vector<RGB_Color>> pixelmap)
     ppmFile.open("csc305-a1.ppm", pixelmap[0].size(), pixelmap.size());
 
     // render each pixel in the scene's pixelmap
-    for(int i=0; i<pixelmap.size(); i++)
+    for(int i=pixelmap.size()-1; i>=0; i--)
     {
-        for(int j=0; j<pixelmap[i].size(); j++)
+        for(int j=pixelmap[i].size()-1; j>=0; j--)
         {
-            float r = float(j) / float(pixelmap.size());
-            float g = float(i) / pixelmap[i].size();
-            float b = 0.2f;
             RGB_Color color = pixelmap[i][j];
             ppmFile.writeColor(color.R, color.G, color.B);
         }
@@ -60,7 +57,7 @@ int main(int argc, char **argv)
     // build objects
     // center, surface color, emission, radius
     Sphere sphere_1 = Sphere(Vec3f(0.0f,0.0f,-1.0f), RGB_Color(1.0f,0.0f,0.0f), 0.0f, 0.5f);
-    Sphere sphere_2 = Sphere(Vec3f(0.0f,100.5f,-1.0f), RGB_Color(0.0f,0.0f,0.0f), 0.0f, 100.0f);
+    Sphere sphere_2 = Sphere(Vec3f(0.0f,-100.5f,-1.0f), RGB_Color(0.0f,0.0f,0.0f), 0.0f, 100.0f);
 
     // insert each object into the scene
     scene = new Scene(SCENE_WIDTH, SCENE_HEIGHT, FOCAL_LENGTH);
