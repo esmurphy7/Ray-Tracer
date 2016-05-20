@@ -14,6 +14,7 @@ public:
     Vec3f direction;
     Ray();
     Ray(Vec3f origin, Vec3f direction);
+    Vec3f pointAt(float t);
 };
 
 Ray::Ray()
@@ -23,6 +24,12 @@ Ray::Ray(Vec3f origin, Vec3f direction)
 {
     this->origin=origin;
     this->direction=direction;
+}
+
+Vec3f Ray::pointAt(float t)
+{
+    Vec3f point = origin + direction*t;
+    return point;
 }
 
 #endif //CSC305_A1_RAY_H

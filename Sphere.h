@@ -14,7 +14,7 @@ public:
     float radius;
     Sphere();
     Sphere(Vec3f center, RGB_Color surfaceColor, float emission, float radius);
-    bool intersects(Ray ray);
+    float intersects(Ray ray);
 };
 
 Sphere::Sphere()
@@ -27,7 +27,7 @@ Sphere::Sphere(Vec3f center, RGB_Color surfaceColor, float emission, float radiu
           radius(radius)
 {}
 
-bool Sphere::intersects(Ray ray)
+float Sphere::intersects(Ray ray)
 {
     Vec3f center_offset = ray.origin - center;
     float a = Vec3f::dotProduct(ray.direction, ray.direction);
@@ -35,8 +35,18 @@ bool Sphere::intersects(Ray ray)
     float c = Vec3f::dotProduct(center_offset, center_offset) - radius*radius;
 
     float discriminant = b*b - 4.0f*a*c;
-    bool hit = (discriminant > 0);
-    return hit;
+
+    // no solution
+    if(discriminant < 0.0f)
+    {
+        return -1.0f;
+    }
+    // 1 or 2 solutions
+    else
+    {
+        float t = float((-b - sqrt(discriminant)) / (2.0f*a));
+        return t;
+    }
 }
 
 #endif //CSC305_A1_SPHERE_H

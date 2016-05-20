@@ -111,10 +111,17 @@ void Scene::traceRays()
             // check if the ray has intersected an object in the scene
             for(int o=0; o<objects.size(); o++)
             {
-                bool hit = objects[o]->intersects(ray);
-                if(hit)
+                t = objects[o]->intersects(ray);
+                if(t > 0.0f)
                 {
-                    color = objects[o]->surfaceColor;
+                    Vec3f objectNormal = ray.pointAt(t) - objects[o]->center;
+                    objectNormal.normalize();
+
+                    colorVec = Vec3f(objectNormal.getX()+1, objectNormal.getY()+1, objectNormal.getZ()+1);
+                    colorVec = colorVec*0.5f;
+
+                    color = RGB_Color(colorVec.getX(), colorVec.getY(), colorVec.getZ());
+                    //color = objects[o]->surfaceColor;
                     break;
                 }
             }
