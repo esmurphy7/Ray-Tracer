@@ -160,14 +160,28 @@ RGB_Color Scene::calculateColor(Ray ray)
     // color the pixel if it was hit
     if(hitIndex != -1)
     {
-        Vec3f objectNormal = ray.pointAt(closest_t) - objects[hitIndex]->center;
-        objectNormal.normalize();
+        // get random point in a unit sphere
+        Vec3f s;
+        do {
+            float rx = ((float) rand() / (RAND_MAX));
+            float ry = ((float) rand() / (RAND_MAX));
+            float rz = ((float) rand() / (RAND_MAX));
+            s = Vec3f(rx, ry, rz)*2.0f - Vec3f(1.0f, 1.0f, 1.0f);
+        } while(Vec3f::dotProduct(s, s) >= 1.0f);
 
-        // color the pixel relative to the object's normal vector
-        Vec3f colorVec = Vec3f(objectNormal.getX()+1, objectNormal.getY()+1, objectNormal.getZ()+1);
-        colorVec = colorVec*0.5f;
+        // get random point relative to normal of the hit point as target
+        Vec3f target = hitRecord.point + hitRecord.normal + s;
 
-        color = RGB_Color(colorVec.getX(), colorVec.getY(), colorVec.getZ());
+        // create shadow ray
+        Ray shadowRay = Ray(hitRecord.point, target - hitRecord.point);
+
+        // recursively build color from shadow ray
+        RGB_Color shadowColor = calculateColor(shadowRay);
+        shadowColor.R *= 0.5f;
+        shadowColor.G *= 0.5f;
+        shadowColor.B *= 0.5f;
+
+        return shadowColor;
     }
 
     return color;
