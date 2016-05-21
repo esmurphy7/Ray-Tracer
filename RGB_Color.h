@@ -13,6 +13,23 @@ public:
     RGB_Color(float R, float G, float B);
     Vec3f toVec3f();
     static RGB_Color toColor(const Vec3f& vec);
+
+    void operator += (const RGB_Color& color)
+    {
+        R += color.R;
+        G += color.G;
+        B += color.B;
+    }
+
+    RGB_Color operator * (const RGB_Color& color) const
+    {
+        return RGB_Color(R*color.R, G*color.G, B*color.B);
+    }
+
+    RGB_Color operator * (const float& val) const
+    {
+        return RGB_Color(R*val, G*val, B*val);
+    }
 };
 
 RGB_Color::RGB_Color()
