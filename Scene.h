@@ -39,12 +39,15 @@ public:
     std::vector<std::vector<RGB_Color>> pixelmap;
     std::vector<SceneObject*> objects;
     Scene(unsigned int width, unsigned int height, double focalLength);
+    void addObject(SceneObject* object);
     void traceRays();
 
 private:
     Camera camera;
     ImagePlane imgPlane;
+    std::vector<SceneObject*> lights;
     RGB_Color calculateColor(Ray r);
+    int findClosestIntersecting(Ray r, std::vector<SceneObject*> objectSet, HitRecord& hitRecord);
 };
 
 Scene::Scene(unsigned int width, unsigned int height, double focalLength)
@@ -69,6 +72,9 @@ Scene::Scene(unsigned int width, unsigned int height, double focalLength)
     // initialize object set
     objects = std::vector<SceneObject*>();
 
+    // initialize light set
+    lights = std::vector<SceneObject*>();
+
     // initialize pixel map
     pixelmap = std::vector<std::vector<RGB_Color>>(height);
     for(int i=0; i < height; i++)
@@ -80,6 +86,18 @@ Scene::Scene(unsigned int width, unsigned int height, double focalLength)
         {
             pixelmap[i][j] = backgroundColor;
         }
+    }
+}
+
+void Scene::addObject(SceneObject *object)
+{
+    if(object->emission > 0.0f)
+    {
+        lights.push_back(object);
+    }
+    else
+    {
+        objects.push_back(object);
     }
 }
 
@@ -122,7 +140,7 @@ void Scene::traceRays()
             // take the average color
             Vec3f colorVec = color.toVec3f();
             colorVec /= ANTI_ALIASING_SAMPLES;
-            color = RGB_Color::toColor(colorVec);
+            color = RGB_Color(float(sqrt(colorVec.getX())), float(sqrt(colorVec.getY())), float(sqrt(colorVec.getZ())));
             pixelmap[i][j] = color;
         }
     }
@@ -137,29 +155,23 @@ RGB_Color Scene::calculateColor(Ray ray)
     Vec3f ray_unit_direction = Vec3f::unitVector(ray.direction);
     float t = 0.5f*(ray_unit_direction.getY() + 1.0f);
     Vec3f colorVec = Vec3f(1.0f, 1.0f, 1.0f)*(1.0f-t) + Vec3f(0.5f, 0.7f, 1.0f)*t;
-    RGB_Color color = RGB_Color(colorVec.getX(), colorVec.getY(), colorVec.getZ());
+    RGB_Color defaultColor = RGB_Color(colorVec.getX(), colorVec.getY(), colorVec.getZ());
 
     // find the closest object that the ray will intersect
-    float t_max = std::numeric_limits<float>::max();    // only consider values of t less than max
-    float t_min = 0.0f;                                 // only consider values of t greater than min
-    HitRecord hitRecord;                                // information on any hits that occurred
-    int hitIndex = -1;                                  // index of closest object hit
-    float closest_t = t_max;                            // t value of closest hit point
-    for(int o=0; o<objects.size(); o++)
+    HitRecord hitRecord;
+    int closestObjectIndex = findClosestIntersecting(ray, objects, hitRecord);
+
+    // if the ray hit a light object, return its light value
+    if(findClosestIntersecting(ray, lights, hitRecord) != -1)
     {
-        // find intersection point that is closer than the closest so far
-        bool hit = objects[o]->intersects(t_min, closest_t, ray, hitRecord);
-        if(hit)
-        {
-            // record closest t value and index of object hit
-            closest_t = hitRecord.t;
-            hitIndex = o;
-        }
+        RGB_Color lightColor = RGB_Color(1.0f, 1.0f, 0.0);  // green/yellow
+        return lightColor;
     }
 
-    // color the pixel if it was hit
-    if(hitIndex != -1)
+    // if the ray hit a diffuse object, send reflection ray and get its color
+    if(closestObjectIndex != -1)
     {
+
         // get random point in a unit sphere
         Vec3f s;
         do {
@@ -172,20 +184,41 @@ RGB_Color Scene::calculateColor(Ray ray)
         // get random point relative to normal of the hit point as target
         Vec3f target = hitRecord.point + hitRecord.normal + s;
 
-        // create shadow ray
-        Ray shadowRay = Ray(hitRecord.point, target - hitRecord.point);
+        // create reflect ray
+        Ray reflectRay = Ray(hitRecord.point, target - hitRecord.point);
 
-        // recursively build color from shadow ray
-        RGB_Color shadowColor = calculateColor(shadowRay);
-        shadowColor.R *= 0.5f;
-        shadowColor.G *= 0.5f;
-        shadowColor.B *= 0.5f;
+        // recursively calculate the color of the reflection ray
+        RGB_Color reflectColor = calculateColor(reflectRay);
+        // if the reflection ray intersects another object, that object absorbed some of that light
+        reflectColor.R *= 0.5f;
+        reflectColor.G *= 0.5f;
+        reflectColor.B *= 0.5f;
 
-        return shadowColor;
+        return reflectColor;
     }
 
-    return color;
+    return defaultColor;
 }
 
+int Scene::findClosestIntersecting(Ray ray, std::vector<SceneObject *> objectSet, HitRecord& hitRecord)
+{
+    float t_max = std::numeric_limits<float>::max();    // only consider values of t less than max
+    float t_min = 0.0f;                                 // only consider values of t greater than min
+    int closestIndex = -1;               // closest object hit
+    float closest_t = t_max;                            // t value of closest hit point
+    for(int o=0; o<objectSet.size(); o++)
+    {
+        // find intersection point that is closer than the closest so far
+        bool hit = objectSet[o]->intersects(t_min, closest_t, ray, hitRecord);
+        if(hit)
+        {
+            // record closest t value and index of object hit
+            closest_t = hitRecord.t;
+            closestIndex = o;
+        }
+    }
+
+    return closestIndex;
+}
 #endif //CSC305_A1_SCENE_H
 

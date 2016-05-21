@@ -56,15 +56,16 @@ int main(int argc, char **argv)
 {
     // build objects
     // center, surface color, emission, radius
-    Sphere sphere_1 = Sphere(Vec3f(0.0f,0.0f,-1.0f), RGB_Color(1.0f,0.0f,0.0f), 0.0f, 0.5f);
+    Sphere sphere_1 = Sphere(Vec3f(0.0f,0.0f,-2.0f), RGB_Color(1.0f,0.0f,0.0f), 0.0f, 0.5f);
     Sphere sphere_2 = Sphere(Vec3f(0.0f,-100.5f,-1.0f), RGB_Color(0.0f,0.0f,0.0f), 0.0f, 100.0f);
+    // light emitting sphere
+    Sphere light_sphere = Sphere(Vec3f(0.5f,0.5f,-1.0f), RGB_Color(1.0f,1.0f,1.0f), 1.0f, 0.2f);
 
     // insert each object into the scene
     scene = new Scene(SCENE_WIDTH, SCENE_HEIGHT, FOCAL_LENGTH);
-    SceneObject* object = &sphere_1;
-    scene->objects.push_back(object);
-    object = &sphere_2;
-    scene->objects.push_back(object);
+    scene->addObject(&sphere_1);
+    scene->addObject(&sphere_2);
+    scene->addObject(&light_sphere);
 
     // ray trace
     scene->traceRays();

@@ -35,9 +35,10 @@ SceneObject::SceneObject()
 {}
 
 SceneObject::SceneObject(Vec3f center, RGB_Color surfaceColor, float emission)
-        : center(center),
-          surfaceColor(surfaceColor),
-          emission(emission)
-{}
+{
+    this->center=center;
+    this->surfaceColor=surfaceColor;
+    this->emission=emission;
+}
 
 #endif //CSC305_A1_SCENEOBJECT_H
