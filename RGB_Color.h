@@ -17,7 +17,7 @@ public:
 
 RGB_Color::RGB_Color()
 {
-    R, G, B = 0;
+    R, G, B = 0.0f;
 }
 
 RGB_Color::RGB_Color(float R, float G, float B)

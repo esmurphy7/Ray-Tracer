@@ -117,7 +117,7 @@ void Scene::traceRays()
         for(int j=0; j<pixelmap[i].size(); j++)
         {
             // anti-aliasing: send multiple rays to the current pixel and take average color
-            RGB_Color color;
+            RGB_Color color = RGB_Color(0.0f,0.0f,0.0f);
             for(int s=0; s < ANTI_ALIASING_SAMPLES; s++)
             {
                 // calculate random sampling scalars used to scale directional vectors
@@ -171,7 +171,6 @@ RGB_Color Scene::calculateColor(Ray ray)
     // if the ray hit a diffuse object, send reflection ray and get its color
     if(closestObjectIndex != -1)
     {
-
         // get random point in a unit sphere
         Vec3f s;
         do {
