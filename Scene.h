@@ -153,19 +153,18 @@ void Scene::traceRays()
  */
 RGB_Color Scene::calculateColor(Ray ray, int& debug_recurse_i)
 {
-
-    // find the closest object that the ray will intersect
-    HitRecord hitRecord;
-    int closestObjectIndex = findClosestIntersecting(ray, objects, hitRecord);
-
     // if the ray hit a light directly
-    int closestLightIndex = findClosestIntersecting(ray, lights, hitRecord);
+    HitRecord lightHitRecord;
+    int closestLightIndex = findClosestIntersecting(ray, lights, lightHitRecord);
     if(closestLightIndex != -1)
     {
         RGB_Color lightColor = lights[closestLightIndex]->surfaceColor;
         return lightColor;
     }
 
+    // find the closest object that the ray will intersect
+    HitRecord objectHitRecord;
+    int closestObjectIndex = findClosestIntersecting(ray, objects, objectHitRecord);
     // if the ray hit a diffuse object, send reflection ray and get its color
     if(closestObjectIndex != -1)
     {
@@ -179,20 +178,19 @@ RGB_Color Scene::calculateColor(Ray ray, int& debug_recurse_i)
         } while(Vec3f::dotProduct(s, s) >= 1.0f);
 
         // get random point relative to normal of the hit point as target
-        Vec3f target = hitRecord.point + hitRecord.normal + s;
+        Vec3f target = objectHitRecord.point + objectHitRecord.normal + s;
 
         // create reflect ray
-        Ray reflectRay = Ray(hitRecord.point, target - hitRecord.point);
+        Ray reflectRay = Ray(objectHitRecord.point, target - objectHitRecord.point);
 
         // recursively calculate the color of the reflection ray
         RGB_Color aggregatedColor = RGB_Color(0.0f,0.0f,0.0f);
         for(int l=0; l<lights.size(); l++)
         {
-            RGB_Color transmission = RGB_Color(1.0f,1.0f,1.0f);
-            Vec3f lightDirection = lights[l]->center - hitRecord.point;
+            Vec3f lightDirection = lights[l]->center - objectHitRecord.point;
             lightDirection.normalize();
-            aggregatedColor += objects[closestObjectIndex]->surfaceColor * transmission *
-                               std::max(float(0), Vec3f::dotProduct(hitRecord.normal, lightDirection)) * lights[l]->surfaceColor;
+            aggregatedColor += objects[closestObjectIndex]->surfaceColor *
+                               std::max(float(0), Vec3f::dotProduct(objectHitRecord.normal, lightDirection)) * lights[l]->surfaceColor;
         }
 
         return aggregatedColor;
