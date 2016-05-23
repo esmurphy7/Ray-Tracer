@@ -7,8 +7,8 @@
 
 #include <vector>
 #include <iomanip>
-#include <GL/gl.h>
 #include <limits>
+#include <stdlib.h>
 #include "SceneObject.h"
 #include "RGB_Color.h"
 #include "Ray.h"

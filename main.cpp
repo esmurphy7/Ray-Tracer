@@ -1,5 +1,4 @@
 #include <iostream>
-#include <GL/freeglut.h>
 #include <fstream>
 #include "Scene.h"
 #include "Sphere.h"
@@ -14,23 +13,6 @@ using namespace std;
 #define FOCAL_LENGTH    1
 
 Scene* scene;
-
-void renderToGL()
-{
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // render each pixel in the scene's pixelmap to the glut window
-    std::vector<std::vector<RGB_Color>> pixelmap = scene->pixelmap;
-    for(int i=pixelmap.size()-1; i<=0; i--)
-    {
-        for(int j=pixelmap[i].size()-1; j>=0; j--)
-        {
-            glColor3f(pixelmap[i][j].R, pixelmap[i][j].G, pixelmap[i][j].B);
-        }
-    }
-
-    glutSwapBuffers();
-}
 
 void renderToPPM(std::vector<std::vector<RGB_Color>> pixelmap)
 {
@@ -78,15 +60,4 @@ int main(int argc, char **argv)
     scene->traceRays();
 
     renderToPPM(scene->pixelmap);
-
-    // init and build window
-    /*
-    glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
-    glutInitWindowPosition(0, 0);
-    glutInitWindowSize(SCENE_WIDTH,SCENE_HEIGHT);
-    glutCreateWindow("CSC305-A1");
-    glutDisplayFunc(renderToGL);
-    glutMainLoop();
-     */
 }
