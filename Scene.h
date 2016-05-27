@@ -14,9 +14,9 @@
 #include "Ray.h"
 #include "Sphere.h"
 
-#define ANTI_ALIASING_SAMPLES 100
+#define ANTI_ALIASING_SAMPLES 50
 
-const RGB_Color backgroundColor = RGB_Color(0.0f, 0.0f, 0.0f);
+const RGB_Color COLOR_BACKGROUND = RGB_Color(0.0f, 0.0f, 0.0f);
 
 struct ImagePlane
 {
@@ -85,7 +85,7 @@ Scene::Scene(unsigned int width, unsigned int height, double focalLength)
         //initialize pixelmap to background color
         for(int j=0; j < width; j++)
         {
-            pixelmap[i][j] = backgroundColor;
+            pixelmap[i][j] = COLOR_BACKGROUND;
         }
     }
 }
@@ -117,7 +117,6 @@ void Scene::traceRays()
     {
         for(int j=0; j<pixelmap[i].size(); j++)
         {
-            /*
             // anti-aliasing: send multiple rays to the current pixel and take average color
             RGB_Color color = RGB_Color(0.0f,0.0f,0.0f);
             for(int s=0; s < ANTI_ALIASING_SAMPLES; s++)
@@ -133,8 +132,7 @@ void Scene::traceRays()
                 Ray ray = Ray(camera.position, bottom_left_corner + horizontal*u + vertical*v - camera.position);
 
                 // get the color and contribute it to average
-                int debug_recurse_i = 0;
-                RGB_Color colorSample = calculateColor(ray, debug_recurse_i);
+                RGB_Color colorSample = calculateColor(ray);
                 color.R += colorSample.R;
                 color.G += colorSample.G;
                 color.B += colorSample.B;
@@ -143,19 +141,10 @@ void Scene::traceRays()
             // take the average color
             Vec3f colorVec = color.toVec3f();
             colorVec /= ANTI_ALIASING_SAMPLES;
-            color = RGB_Color(float(sqrt(colorVec.getX())), float(sqrt(colorVec.getY())), float(sqrt(colorVec.getZ())));
-             */
+            color = RGB_Color(colorVec);
 
-            // calculate random sampling scalars used to scale directional vectors
-            float v = (i) / float(pixelmap.size());
-            float u = (j) / float(pixelmap[i].size());
-
-            // create ray at position of camera
-            // use scaled directional vectors to define ray's direction
-            Ray ray = Ray(camera.position, bottom_left_corner + horizontal*u + vertical*v - camera.position);
-            RGB_Color color = calculateColor(ray);
+            // set the color in the map
             pixelmap[i][j] = color;
-
         }
     }
 }

@@ -10,6 +10,7 @@ class RGB_Color
 public:
     float R, G, B;
     RGB_Color();
+    RGB_Color(Vec3f vec);
     RGB_Color(float R, float G, float B);
     Vec3f toVec3f();
     static RGB_Color toColor(const Vec3f& vec);
@@ -35,6 +36,13 @@ public:
 RGB_Color::RGB_Color()
 {
     R, G, B = 0.0f;
+}
+
+RGB_Color::RGB_Color(Vec3f vec)
+{
+    R = vec.getX();
+    G = vec.getY();
+    B = vec.getZ();
 }
 
 RGB_Color::RGB_Color(float R, float G, float B)
