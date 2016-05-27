@@ -45,8 +45,8 @@ int main(int argc, char **argv)
     // center, normal, surface color, emission
     Plane plane_1 = Plane(Vec3f(0.0f,-100.0f,0.0f), Vec3f(0.0f,1.0f,-0.3f), RGB_Color(0.5f,1.0f,0.5f), 0.0f);
     // light emitting sphere
-    Sphere light_sphere = Sphere(Vec3f(4.0f,2.0f,-4.0f), RGB_Color(1.0f,1.0f,1.0f), 1.0f, 0.5f);
-    Sphere light_sphere2 = Sphere(Vec3f(-3.0f,-2.0f,-4.0f), RGB_Color(1.0f,1.0f,1.0f), 1.0f, 0.5f);
+    Sphere light_sphere = Sphere(Vec3f(-2.0f, 1.0f, -3.0f), RGB_Color(1.0f, 1.0f, 1.0f), 1.0f, 0.2f);
+    Sphere light_sphere2 = Sphere(Vec3f(3.0f,1.0f,-3.0f), RGB_Color(1.0f,1.0f,1.0f), 2.0f, 0.2f);
 
     // insert each object into the scene
     scene = new Scene(SCENE_WIDTH, SCENE_HEIGHT, FOCAL_LENGTH);
@@ -54,7 +54,7 @@ int main(int argc, char **argv)
     scene->addObject(&sphere_2);
     scene->addObject(&plane_1);
     scene->addObject(&light_sphere);
-    //scene->addObject(&light_sphere2);
+    scene->addObject(&light_sphere2);
 
     // ray trace
     scene->traceRays();

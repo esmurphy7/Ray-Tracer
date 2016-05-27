@@ -165,15 +165,27 @@ void Scene::traceRays()
  */
 RGB_Color Scene::calculateColor(Ray ray)
 {
-    Sphere light_sphere = Sphere(Vec3f(-2.0f, 4.0f, -3.0f), RGB_Color(1.0f, 1.0f, 1.0f), 2.0f, 2.0f);
-
-    // if the ray intersected an object compute lambertian color, otherwise black
-    HitRecord hitRec;
-    int closestIndex = findClosestIntersecting(ray, objects, hitRec);
-    if(closestIndex != -1)
+    // iterate over all light sources
+    Vec3f combinedColor = Vec3f(0.0f,0.0f,0.0f);
+    for(int i=0; i<lights.size(); i++)
     {
+        HitRecord hitRec;
+        int closestIndex = findClosestIntersecting(ray, objects, hitRec);
+
+        // if the ray didn't intersect an object, don't contribute a color
+        if (closestIndex == -1)
+        {
+            // if the ray intersected a light directly
+            HitRecord lightHitRec;
+            if(lights[i]->intersects(0.0f, std::numeric_limits<float>::max(), ray, lightHitRec))
+            {
+                combinedColor += lights[i]->surfaceColor.toVec3f();
+            }
+            continue;
+        }
+
         // create a shadow ray, pointing to the light source
-        Vec3f light_direction = Vec3f::unitVector(light_sphere.center - hitRec.point);
+        Vec3f light_direction = Vec3f::unitVector(lights[i]->center - hitRec.point);
         Vec3f origin = hitRec.point + hitRec.normal * 0.01f;
         Ray shadowRay = Ray(origin, light_direction);
 
@@ -204,15 +216,16 @@ RGB_Color Scene::calculateColor(Ray ray)
         // if the shadow ray was blocked, don't compute the object's surface light
         if (blocked)
         {
-            return RGB_Color(0.0f, 0.0f, 0.0f);
+            continue;
         }
 
+        // calculate and contribute the lambertian color for the intersected object
         // ratio of light that the object deflects
         float objectAlbedo = 1.0f;
 
-        Vec3f illumination = light_sphere.surfaceColor.toVec3f();
+        Vec3f illumination = lights[i]->surfaceColor.toVec3f();
         float diffuseCoefficient = (objectAlbedo / 3.141592654f);
-        float lightIntensity = light_sphere.emission;
+        float lightIntensity = lights[i]->emission;
         Vec3f objectColor = objects[closestIndex]->surfaceColor.toVec3f();
         float normalDotLight = std::max(0.0f, hitRec.normal.dotProduct(light_direction));
 
@@ -225,12 +238,11 @@ RGB_Color Scene::calculateColor(Ray ray)
         hitColor.setY(hitColor.getY() * objectColor.getY());
         hitColor.setZ(hitColor.getZ() * objectColor.getZ());
 
-        return RGB_Color::toColor(hitColor);
+        combinedColor += hitColor;
+
     }
-    else
-    {
-        return RGB_Color(0.0f,0.0f,0.0f);
-    }
+
+    return RGB_Color::toColor(combinedColor);
 
     /*
     // if the ray hit a light directly
