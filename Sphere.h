@@ -34,30 +34,6 @@ bool Sphere::intersects(float t_min, float t_max, Ray ray, HitRecord& hitRecord)
 {
     float t0, t1; // solutions for t if the ray intersects
 
-    /*
-    // geometric solution
-    Vec3f L = center - ray.origin;
-    float tca = L.dotProduct(ray.direction);
-
-    if (tca < 0) return false;
-
-    float d2 = L.dotProduct(L) - tca * tca;
-    float radius2 = radius*radius;
-
-    if (d2 > radius2) return false;
-
-    float thc = float(sqrt(radius2 - d2));
-    t0 = tca - thc;
-    t1 = tca + thc;
-
-    if (t0 > t1) std::swap(t0, t1);
-
-    if (t0 < 0) {
-        t0 = t1; // if t0 is negative, let's use t1 instead
-        if (t0 < 0) return false; // both t0 and t1 are negative
-    }
-    */
-
     // analytic solution
     Vec3f L = ray.origin - center;
     float a = ray.direction.dotProduct(ray.direction);

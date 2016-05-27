@@ -10,7 +10,7 @@ using namespace std;
 
 #define SCENE_WIDTH    200
 #define SCENE_HEIGHT   100
-#define FOCAL_LENGTH    1
+#define MAGNIFIER      1
 
 Scene* scene;
 
@@ -49,7 +49,7 @@ int main(int argc, char **argv)
     Sphere light_sphere2 = Sphere(Vec3f(3.0f,1.0f,-3.0f), RGB_Color(1.0f,1.0f,1.0f), 2.0f, 0.2f);
 
     // insert each object into the scene
-    scene = new Scene(SCENE_WIDTH, SCENE_HEIGHT, FOCAL_LENGTH);
+    scene = new Scene(SCENE_WIDTH, SCENE_HEIGHT, MAGNIFIER);
     scene->addObject(&sphere_1);
     scene->addObject(&sphere_2);
     scene->addObject(&plane_1);

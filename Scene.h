@@ -39,7 +39,7 @@ class Scene
 public:
     std::vector<std::vector<RGB_Color>> pixelmap;
     std::vector<SceneObject*> objects;
-    Scene(unsigned int width, unsigned int height, double focalLength);
+    Scene(unsigned int width, unsigned int height, float focalLength);
     void addObject(SceneObject* object);
     void traceRays();
 
@@ -51,7 +51,7 @@ private:
     int findClosestIntersecting(Ray r, std::vector<SceneObject*> objectSet, HitRecord& hitRecord);
 };
 
-Scene::Scene(unsigned int width, unsigned int height, double focalLength)
+Scene::Scene(unsigned int width, unsigned int height, float magnifier)
 {
     // initialize camera
     camera = {
@@ -62,7 +62,7 @@ Scene::Scene(unsigned int width, unsigned int height, double focalLength)
     };
 
     // initialize image plane at position specified by focal length
-    Vec3f pos = camera.position + Vec3f(0.0f, 0.0f, -1.0f)*focalLength;
+    Vec3f pos = camera.position + Vec3f(0.0f, 0.0f, -1.0f*magnifier);
     imgPlane = {
             pos,                        // position
             Vec3f(0.0f, 0.0f, -1.0f),   // normal
@@ -232,55 +232,6 @@ RGB_Color Scene::calculateColor(Ray ray)
     }
 
     return RGB_Color::toColor(combinedColor);
-
-    /*
-    // if the ray hit a light directly
-    HitRecord lightHitRecord;
-    int closestLightIndex = findClosestIntersecting(ray, lights, lightHitRecord);
-    if(closestLightIndex != -1)
-    {
-        RGB_Color lightColor = lights[closestLightIndex]->surfaceColor;
-        return lightColor;
-    }
-
-    // find the closest object that the ray will intersect
-    HitRecord objectHitRecord;
-    int closestObjectIndex = findClosestIntersecting(ray, objects, objectHitRecord);
-    // if the ray hit a diffuse object, send reflection ray and get its color
-    if(closestObjectIndex != -1)
-    {
-        // get random point in a unit sphere
-        Vec3f s;
-        do {
-            float rx = ((float) rand() / (RAND_MAX));
-            float ry = ((float) rand() / (RAND_MAX));
-            float rz = ((float) rand() / (RAND_MAX));
-            s = Vec3f(rx, ry, rz)*2.0f - Vec3f(1.0f, 1.0f, 1.0f);
-        } while(Vec3f::dotProduct(s, s) >= 1.0f);
-
-        // get random point relative to normal of the hit point as target
-        Vec3f target = objectHitRecord.point + objectHitRecord.normal + s;
-
-        // create reflect ray
-        Ray reflectRay = Ray(objectHitRecord.point, target - objectHitRecord.point);
-
-        // recursively calculate the color of the reflection ray
-        RGB_Color aggregatedColor = RGB_Color(0.0f,0.0f,0.0f);
-        for(int l=0; l<lights.size(); l++)
-        {
-            Vec3f lightDirection = lights[l]->center - objectHitRecord.point;
-            lightDirection.normalize();
-            aggregatedColor += objects[closestObjectIndex]->surfaceColor *
-                               std::max(float(0), Vec3f::dotProduct(objectHitRecord.normal, lightDirection)) * lights[l]->surfaceColor;
-        }
-
-        return aggregatedColor;
-    }
-
-    // ray didn't intersect with anything
-    RGB_Color defaultColor = RGB_Color(0.0f,0.0f,0.0f);
-    return defaultColor;
-     */
 }
 
 int Scene::findClosestIntersecting(Ray ray, std::vector<SceneObject *> objectSet, HitRecord& hitRecord)
