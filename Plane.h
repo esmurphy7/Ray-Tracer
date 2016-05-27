@@ -29,12 +29,15 @@ bool Plane::intersects(float t_min, float t_max, Ray ray, HitRecord &hitRecord)
     if (std::abs(denom) > 0.0001f)
     {
         float t = Vec3f::dotProduct((center - ray.origin), normal) / denom;
-        if (t >= 0.0f)
+        if(t_min < t && t < t_max)
         {
-            hitRecord.t = t;
-            hitRecord.point = ray.pointAt(t);
-            hitRecord.normal = normal;
-            return true;
+            if (t >= 0.0f)
+            {
+                hitRecord.t = t;
+                hitRecord.point = ray.pointAt(t);
+                hitRecord.normal = normal;
+                return true;
+            }
         }
     }
     return false;
