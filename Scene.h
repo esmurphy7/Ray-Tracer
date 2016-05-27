@@ -12,6 +12,7 @@
 #include "SceneObject.h"
 #include "RGB_Color.h"
 #include "Ray.h"
+#include "Sphere.h"
 
 #define ANTI_ALIASING_SAMPLES 100
 
@@ -46,7 +47,7 @@ private:
     Camera camera;
     ImagePlane imgPlane;
     std::vector<SceneObject*> lights;
-    RGB_Color calculateColor(Ray r, int& debug_recurse_i);
+    RGB_Color calculateColor(Ray r);
     int findClosestIntersecting(Ray r, std::vector<SceneObject*> objectSet, HitRecord& hitRecord);
 };
 
@@ -116,6 +117,7 @@ void Scene::traceRays()
     {
         for(int j=0; j<pixelmap[i].size(); j++)
         {
+            /*
             // anti-aliasing: send multiple rays to the current pixel and take average color
             RGB_Color color = RGB_Color(0.0f,0.0f,0.0f);
             for(int s=0; s < ANTI_ALIASING_SAMPLES; s++)
@@ -142,6 +144,16 @@ void Scene::traceRays()
             Vec3f colorVec = color.toVec3f();
             colorVec /= ANTI_ALIASING_SAMPLES;
             color = RGB_Color(float(sqrt(colorVec.getX())), float(sqrt(colorVec.getY())), float(sqrt(colorVec.getZ())));
+             */
+
+            // calculate random sampling scalars used to scale directional vectors
+            float v = (i) / float(pixelmap.size());
+            float u = (j) / float(pixelmap[i].size());
+
+            // create ray at position of camera
+            // use scaled directional vectors to define ray's direction
+            Ray ray = Ray(camera.position, bottom_left_corner + horizontal*u + vertical*v - camera.position);
+            RGB_Color color = calculateColor(ray);
             pixelmap[i][j] = color;
 
         }
@@ -151,8 +163,43 @@ void Scene::traceRays()
 /*
  * Calculate the color that the ray will produce based on its intersection of scene objects
  */
-RGB_Color Scene::calculateColor(Ray ray, int& debug_recurse_i)
+RGB_Color Scene::calculateColor(Ray ray)
 {
+    // if the ray intersected an object compute lambertian color, otherwise black
+    HitRecord hitRec;
+    int closestIndex = findClosestIntersecting(ray, objects, hitRec);
+    if(closestIndex != -1)
+    {
+        Sphere light_sphere = Sphere(Vec3f(-4.0f,2.0f,-4.0f), RGB_Color(1.0f,1.0f,1.0f), 2.0f, 0.5f);
+        Vec3f light_direction = Vec3f::unitVector(light_sphere.center - ray.pointAt(hitRec.t));
+
+        // ratio of deflected light
+        float objectAlbedo = 1.0f;
+
+        Vec3f illumination = light_sphere.surfaceColor.toVec3f();              // illumination
+        float diffCoefficient = (objectAlbedo / 3.141592654f);                            // diffuse coefficient
+        float lightIntensity = light_sphere.emission;                                     // intensity
+        Vec3f objectColor = objects[closestIndex]->surfaceColor.toVec3f(); // object color
+        float normalDotLight = std::max(0.0f, hitRec.normal.dotProduct(light_direction));  // proportional to angle of incident
+
+        Vec3f hitColor = illumination;
+        hitColor *= diffCoefficient;
+        hitColor *= lightIntensity;
+        hitColor *= normalDotLight;
+
+        hitColor.setX(hitColor.getX() * objectColor.getX());
+        hitColor.setY(hitColor.getY() * objectColor.getY());
+        hitColor.setZ(hitColor.getZ() * objectColor.getZ());
+
+        return RGB_Color::toColor(hitColor);
+
+    }
+    else
+    {
+        return RGB_Color(0.0f,0.0f,0.0f);
+    }
+
+    /*
     // if the ray hit a light directly
     HitRecord lightHitRecord;
     int closestLightIndex = findClosestIntersecting(ray, lights, lightHitRecord);
@@ -199,6 +246,7 @@ RGB_Color Scene::calculateColor(Ray ray, int& debug_recurse_i)
     // ray didn't intersect with anything
     RGB_Color defaultColor = RGB_Color(0.0f,0.0f,0.0f);
     return defaultColor;
+     */
 }
 
 int Scene::findClosestIntersecting(Ray ray, std::vector<SceneObject *> objectSet, HitRecord& hitRecord)
