@@ -49,6 +49,7 @@ private:
     std::vector<SceneObject*> lights;
     RGB_Color calculateColor(Ray r);
     int findClosestIntersecting(Ray r, std::vector<SceneObject*> objectSet, HitRecord& hitRecord);
+    SceneObject* findClosestIntersectingLightOrObject(Ray ray, HitRecord& hitRecord);
 };
 
 Scene::Scene(unsigned int width, unsigned int height, float magnifier)
@@ -159,17 +160,18 @@ RGB_Color Scene::calculateColor(Ray ray)
     for(int i=0; i<lights.size(); i++)
     {
         HitRecord hitRec;
-        int closestIndex = findClosestIntersecting(ray, objects, hitRec);
+        SceneObject* closestObject = findClosestIntersectingLightOrObject(ray, hitRec);
 
-        // if the ray didn't intersect an object, don't contribute a color
-        if (closestIndex == -1)
+        // if the ray didn't intersect an object or a light, ignore it
+        if (closestObject == nullptr)
         {
-            // if the ray intersected a light directly
-            HitRecord lightHitRec;
-            if(lights[i]->intersects(0.0f, std::numeric_limits<float>::max(), ray, lightHitRec))
-            {
-                combinedColor += lights[i]->surfaceColor.toVec3f();
-            }
+            continue;
+        }
+
+        // if the ray intersected a light directly, contribute its color
+        if(closestObject->emission > 0.0f)
+        {
+            combinedColor += lights[i]->surfaceColor.toVec3f();
             continue;
         }
 
@@ -215,7 +217,7 @@ RGB_Color Scene::calculateColor(Ray ray)
         Vec3f illumination = lights[i]->surfaceColor.toVec3f();
         float diffuseCoefficient = (objectAlbedo / 3.141592654f);
         float lightIntensity = lights[i]->emission;
-        Vec3f objectColor = objects[closestIndex]->surfaceColor.toVec3f();
+        Vec3f objectColor = closestObject->surfaceColor.toVec3f();
         float normalDotLight = std::max(0.0f, hitRec.normal.dotProduct(light_direction));
 
         Vec3f hitColor = illumination;
@@ -253,6 +255,46 @@ int Scene::findClosestIntersecting(Ray ray, std::vector<SceneObject *> objectSet
     }
 
     return closestIndex;
+}
+
+/*
+ * Find and return the object or light that is closest to the ray.
+ * Returns nullptr if neither a light nore a object is intersected with.
+ */
+SceneObject* Scene::findClosestIntersectingLightOrObject(Ray ray, HitRecord& hitRecord)
+{
+    HitRecord objectRec;
+    HitRecord lightRec;
+
+    float objectDistance = std::numeric_limits<float>::max();
+    float lightDistance = std::numeric_limits<float>::max();
+
+    int closestObject_i = findClosestIntersecting(ray, objects, objectRec);
+    int closestLight_i = findClosestIntersecting(ray, lights, lightRec);
+
+    // find and return the object/light that is closest to the ray, update the hit record accordingly
+    if(closestObject_i != -1 )
+    {
+        objectDistance = Vec3f::distance(ray.origin, objectRec.point);
+    }
+    if(closestLight_i != -1)
+    {
+        lightDistance = Vec3f::distance(ray.origin, lightRec.point);
+    }
+    if(objectDistance < lightDistance)
+    {
+        hitRecord = objectRec;
+        return objects[closestObject_i];
+    }
+    else if(objectDistance > lightDistance)
+    {
+        hitRecord = lightRec;
+        return lights[closestLight_i];
+    }
+    else
+    {
+        return nullptr;
+    }
 }
 #endif //CSC305_A1_SCENE_H
 
