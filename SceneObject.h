@@ -24,6 +24,7 @@ public:
     float emission;
     SceneObject();
     SceneObject(Vec3f center, RGB_Color surfaceColor, float emission);
+    bool isLight();
     virtual ~SceneObject() {}
     virtual bool intersects(float t_min, float t_max, Ray ray, HitRecord& hitRecord) = 0;
 };
@@ -41,4 +42,8 @@ SceneObject::SceneObject(Vec3f center, RGB_Color surfaceColor, float emission)
     this->emission=emission;
 }
 
+bool SceneObject::isLight()
+{
+    return emission > 0.0f;
+}
 #endif //CSC305_A1_SCENEOBJECT_H

@@ -93,7 +93,7 @@ Scene::Scene(unsigned int width, unsigned int height, float magnifier)
 
 void Scene::addObject(SceneObject *object)
 {
-    if(object->emission > 0.0f)
+    if(object->isLight())
     {
         lights.push_back(object);
     }
@@ -169,7 +169,7 @@ RGB_Color Scene::calculateColor(Ray ray)
         }
 
         // if the ray intersected a light directly, contribute its color
-        if(closestObject->emission > 0.0f)
+        if(closestObject->isLight())
         {
             combinedColor += lights[i]->surfaceColor.toVec3f();
             continue;
@@ -180,32 +180,10 @@ RGB_Color Scene::calculateColor(Ray ray)
         Vec3f origin = hitRec.point + hitRec.normal * 0.01f;
         Ray shadowRay = Ray(origin, light_direction);
 
-        // determine if the shadow ray was blocked
-        bool blocked = false;
-        HitRecord reflectLightHitRec;
-        HitRecord reflectObjHitRec;
-        int closestReflectLight_i = findClosestIntersecting(shadowRay, lights, reflectLightHitRec);
-        int closestReflectObject_i = findClosestIntersecting(shadowRay, objects, reflectObjHitRec);
-
-        // if the shadow ray intersected an object
-        if (closestReflectObject_i != -1)
-        {
-            blocked = true;
-            // if the shadow ray also intersected a light
-            if (closestReflectLight_i != -1)
-            {
-                // if the intersected light is closer than the intersected object, shadow ray not blocked
-                float lightDistance = Vec3f::distance(shadowRay.origin, reflectLightHitRec.point);
-                float objectDistance = Vec3f::distance(shadowRay.origin, reflectObjHitRec.point);
-                if (lightDistance < objectDistance)
-                {
-                    blocked = false;
-                }
-            }
-        }
-
-        // if the shadow ray was blocked, don't compute the object's surface light
-        if (blocked)
+        // determine if the shadow ray was blocked by a non-light object
+        HitRecord shadHitRec;
+        SceneObject* closestShadObject = findClosestIntersectingLightOrObject(shadowRay, shadHitRec);
+        if(!closestShadObject->isLight())
         {
             continue;
         }
@@ -258,8 +236,8 @@ int Scene::findClosestIntersecting(Ray ray, std::vector<SceneObject *> objectSet
 }
 
 /*
- * Find and return the object or light that is closest to the ray.
- * Returns nullptr if neither a light nore a object is intersected with.
+ * Find and return the closest object or light that intersects the ray.
+ * Returns nullptr if neither a light nor an object intersects the ray.
  */
 SceneObject* Scene::findClosestIntersectingLightOrObject(Ray ray, HitRecord& hitRecord)
 {
