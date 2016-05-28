@@ -37,26 +37,37 @@ void renderToPPM(std::vector<std::vector<RGB_Color>> pixelmap)
 
 int main(int argc, char **argv)
 {
-    // build objects
+    // spheres
     // center, surface color, emission, radius
     Sphere sphere_1 = Sphere(Vec3f(1.0f,-1.0f,-4.0f), RGB_Color(1.0f,0.0f,0.0f), 0.0f, 1.0f);
-    Sphere sphere_2 = Sphere(Vec3f(2.0f,2.0f,-6.0f), RGB_Color(0.0f,0.0f,1.0f), 0.0f, 1.0f);
+    Sphere sphere_2 = Sphere(Vec3f(2.0f,2.0f,-10.0f), RGB_Color(0.0f,0.0f,1.0f), 0.0f, 1.5f);
+    Sphere sphere_3 = Sphere(Vec3f(-3.0f,3.0f,-6.0f), RGB_Color(0.3f,0.5f,0.4f), 0.0f, 1.5f);
 
-    // plane
+    // planes
     // center, normal, surface color, emission
-    Plane plane_1 = Plane(Vec3f(0.0f,-20.0f,0.0f), Vec3f(0.0f,1.0f,-0.3f), RGB_Color(0.5f,1.0f,0.5f), 0.0f);
-    Plane plane_2 = Plane(Vec3f(0.0f,0.0f,-100.0f), Vec3f(0.0f,0.0f, 1.0f), RGB_Color(0.3f,0.0f,0.6f), 0.0f);
+    Plane floor = Plane(Vec3f(0.0f,-20.0f,0.0f), Vec3f(0.0f,1.0f,-0.3f), RGB_Color(0.0f,0.5f,0.1f), 0.0f);
+    Plane far_wall = Plane(Vec3f(0.0f,0.0f,-100.0f), Vec3f(0.0f,0.0f, 1.0f), RGB_Color(0.3f,0.0f,0.6f), 0.0f);
+    Plane left_wall = Plane(Vec3f(100.0f,0.0f,0.0f), Vec3f(-1.0f,0.0f, 0.0f), RGB_Color(0.6f,0.8f,0.0f), 0.0f);
+    Plane right_wall = Plane(Vec3f(-100.0f,0.0f,0.0f), Vec3f(1.0f,0.0f, 0.0f), RGB_Color(0.0f,0.6f,0.8f), 0.0f);
+    Plane roof = Plane(Vec3f(0.0f,40.0f,0.0f), Vec3f(0.0f,-1.0f, 0.0f), RGB_Color(0.0f,0.6f,0.8f), 0.0f);
 
-    // light emitting sphere
-    Sphere light_sphere = Sphere(Vec3f(-1.0f, 1.0f, -3.0f), RGB_Color(1.0f, 1.0f, 1.0f), 1.0f, 0.2f);
-    Sphere light_sphere2 = Sphere(Vec3f(2.0f,1.0f,-3.0f), RGB_Color(1.0f,1.0f,1.0f), 2.0f, 0.2f);
+    // lights
+    // center, surface color, emission, radius
+    Sphere light_sphere = Sphere(Vec3f(-1.0f, 1.0f, -3.0f), RGB_Color(1.0f, 1.0f, 1.0f), 1.0f, 0.1f);
+    Sphere light_sphere2 = Sphere(Vec3f(2.0f,1.0f,-3.0f), RGB_Color(1.0f,1.0f,1.0f), 2.0f, 0.1f);
 
     // insert each object into the scene
     scene = new Scene(SCENE_WIDTH, SCENE_HEIGHT, MAGNIFIER);
     scene->addObject(&sphere_1);
     scene->addObject(&sphere_2);
-    scene->addObject(&plane_1);
-    scene->addObject(&plane_2);
+    scene->addObject(&sphere_3);
+
+    scene->addObject(&floor);
+    scene->addObject(&far_wall);
+    scene->addObject(&left_wall);
+    scene->addObject(&right_wall);
+    scene->addObject(&roof);
+
     scene->addObject(&light_sphere);
     scene->addObject(&light_sphere2);
 

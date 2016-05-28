@@ -62,7 +62,7 @@ Scene::Scene(unsigned int width, unsigned int height, float magnifier)
             Vec3f(1.0f, 0.0f, 0.0f),    // right
     };
 
-    // initialize image plane at position specified by focal length
+    // initialize image plane at position specified by magnifier factor
     Vec3f pos = camera.position + Vec3f(0.0f, 0.0f, -1.0f*magnifier);
     imgPlane = {
             pos,                        // position
