@@ -14,7 +14,8 @@
 #include "Ray.h"
 #include "Sphere.h"
 
-#define ANTI_ALIASING_SAMPLES 50
+#define ANTI_ALIASING_SAMPLES  50
+#define REFLECTION_DEPTH        4
 
 const RGB_Color COLOR_BACKGROUND = RGB_Color(0.0f, 0.0f, 0.0f);
 
@@ -47,7 +48,7 @@ private:
     Camera camera;
     ImagePlane imgPlane;
     std::vector<SceneObject*> lights;
-    RGB_Color calculateColor(Ray r);
+    RGB_Color calculateColor(Ray r, int& reflectionDepth);
     int findClosestIntersecting(Ray r, std::vector<SceneObject*> objectSet, HitRecord& hitRecord);
     SceneObject* findClosestIntersectingLightOrObject(Ray ray, HitRecord& hitRecord);
 };
@@ -133,7 +134,8 @@ void Scene::traceRays()
                 Ray ray = Ray(camera.position, bottom_left_corner + horizontal*u + vertical*v - camera.position);
 
                 // get the color and contribute it to average
-                RGB_Color colorSample = calculateColor(ray);
+                int reflectDepth = 0;
+                RGB_Color colorSample = calculateColor(ray, reflectDepth);
                 color.R += colorSample.R;
                 color.G += colorSample.G;
                 color.B += colorSample.B;
@@ -153,7 +155,7 @@ void Scene::traceRays()
 /*
  * Calculate the color that the ray will produce based on its intersection of scene objects
  */
-RGB_Color Scene::calculateColor(Ray ray)
+RGB_Color Scene::calculateColor(Ray ray, int& reflectionDepth)
 {
     HitRecord hitRec;
     SceneObject* closestObject = findClosestIntersectingLightOrObject(ray, hitRec);
@@ -170,47 +172,76 @@ RGB_Color Scene::calculateColor(Ray ray)
         return closestObject->surfaceColor;
     }
 
-    // iterate over all light sources
-    Vec3f combinedColor = Vec3f(0.0f,0.0f,0.0f);
-    for(int i=0; i<lights.size(); i++)
+    switch(closestObject->material)
     {
-        // create a shadow ray, pointing to the light source
-        Vec3f light_direction = Vec3f::unitVector(lights[i]->center - hitRec.point);
-        Vec3f origin = hitRec.point + hitRec.normal * 0.01f;
-        Ray shadowRay = Ray(origin, light_direction);
-
-        // determine if the shadow ray was blocked by a non-light object
-        HitRecord shadHitRec;
-        SceneObject* closestShadObject = findClosestIntersectingLightOrObject(shadowRay, shadHitRec);
-        if(!closestShadObject->isLight())
+        // if the ray intersected a reflective surface, recursively trace the reflection ray
+        case Material::REFLECTIVE:
         {
-            continue;
+            // if the current depth of reflection has been reached, stop recursing
+            if (reflectionDepth > REFLECTION_DEPTH)
+            {
+                return COLOR_BACKGROUND;
+            }
+
+            // R = I - 2 * dotProduct(I, N) * N;
+            Vec3f reflectDir = ray.direction - hitRec.normal * 2 * Vec3f::dotProduct(ray.direction, hitRec.normal);
+            Vec3f reflectOrig = hitRec.point + hitRec.normal * 0.01f;
+            Ray reflectRay = Ray(reflectOrig, reflectDir);
+
+            // return the reflection color, accounting for loss of brightness
+            reflectionDepth++;
+            return calculateColor(reflectRay, reflectionDepth) * 0.6f;
+            break;
         }
+        // if the ray intersected a diffuse surface, compute the combined color from all light sources
+        case Material::DIFFUSE:
+        {
+            // iterate over all light sources
+            Vec3f combinedColor = Vec3f(0.0f, 0.0f, 0.0f);
+            for (int i = 0; i < lights.size(); i++)
+            {
+                // create a shadow ray, pointing to the light source
+                Vec3f light_direction = Vec3f::unitVector(lights[i]->center - hitRec.point);
+                Vec3f origin = hitRec.point + hitRec.normal * 0.01f;
+                Ray shadowRay = Ray(origin, light_direction);
 
-        // calculate and contribute the lambertian color for the intersected object
-        // ratio of light that the object deflects
-        float objectAlbedo = 1.0f;
+                // determine if the shadow ray was blocked by a non-light object
+                HitRecord shadHitRec;
+                SceneObject *closestShadObject = findClosestIntersectingLightOrObject(shadowRay, shadHitRec);
+                if (!closestShadObject->isLight())
+                {
+                    continue;
+                }
 
-        Vec3f illumination = lights[i]->surfaceColor.toVec3f();
-        float diffuseCoefficient = (objectAlbedo / 3.141592654f);
-        float lightIntensity = lights[i]->emission;
-        Vec3f objectColor = closestObject->surfaceColor.toVec3f();
-        float normalDotLight = std::max(0.0f, hitRec.normal.dotProduct(light_direction));
+                // calculate and contribute the lambertian color for the intersected object
+                // ratio of light that the object deflects
+                float objectAlbedo = 1.0f;
 
-        Vec3f hitColor = illumination;
-        hitColor *= diffuseCoefficient;
-        hitColor *= lightIntensity;
-        hitColor *= normalDotLight;
+                Vec3f illumination = lights[i]->surfaceColor.toVec3f();
+                float diffuseCoefficient = (objectAlbedo / 3.141592654f);
+                float lightIntensity = lights[i]->emission;
+                Vec3f objectColor = closestObject->surfaceColor.toVec3f();
+                float normalDotLight = std::max(0.0f, hitRec.normal.dotProduct(light_direction));
 
-        hitColor.setX(hitColor.getX() * objectColor.getX());
-        hitColor.setY(hitColor.getY() * objectColor.getY());
-        hitColor.setZ(hitColor.getZ() * objectColor.getZ());
+                Vec3f hitColor = illumination;
+                hitColor *= diffuseCoefficient;
+                hitColor *= lightIntensity;
+                hitColor *= normalDotLight;
 
-        combinedColor += hitColor;
+                hitColor.setX(hitColor.getX() * objectColor.getX());
+                hitColor.setY(hitColor.getY() * objectColor.getY());
+                hitColor.setZ(hitColor.getZ() * objectColor.getZ());
 
+                combinedColor += hitColor;
+
+            }
+
+            return RGB_Color::toColor(combinedColor);
+            break;
+        }
     }
 
-    return RGB_Color::toColor(combinedColor);
+
 }
 
 int Scene::findClosestIntersecting(Ray ray, std::vector<SceneObject *> objectSet, HitRecord& hitRecord)

@@ -17,11 +17,18 @@ struct HitRecord
     Vec3f normal;
 };
 
+enum Material
+{
+    DIFFUSE=0,
+    REFLECTIVE
+};
+
 class SceneObject {
 public:
     Vec3f center;
     RGB_Color surfaceColor;
     float emission;
+    Material material;
     SceneObject();
     SceneObject(Vec3f center, RGB_Color surfaceColor, float emission);
     bool isLight();
@@ -32,7 +39,8 @@ public:
 SceneObject::SceneObject()
         : center(Vec3f(0.0f, 0.0f, 0.0f)),
           surfaceColor(RGB_Color(0.0f, 0.0f, 0.0f)),
-          emission(0.0f)
+          emission(0.0f),
+          material(Material::DIFFUSE)
 {}
 
 SceneObject::SceneObject(Vec3f center, RGB_Color surfaceColor, float emission)
@@ -40,6 +48,7 @@ SceneObject::SceneObject(Vec3f center, RGB_Color surfaceColor, float emission)
     this->center=center;
     this->surfaceColor=surfaceColor;
     this->emission=emission;
+    this->material=Material::DIFFUSE;
 }
 
 bool SceneObject::isLight()

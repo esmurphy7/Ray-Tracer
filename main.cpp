@@ -39,16 +39,21 @@ int main(int argc, char **argv)
 {
     // spheres
     // center, surface color, emission, radius
-    Sphere sphere_1 = Sphere(Vec3f(1.0f,-1.0f,-4.0f), RGB_Color(1.0f,0.0f,0.0f), 0.0f, 1.0f);
+    Sphere sphere_1 = Sphere(Vec3f(-2.0f,-1.0f,-5.0f), RGB_Color(1.0f,0.0f,0.0f), 0.0f, 1.0f);
     Sphere sphere_2 = Sphere(Vec3f(2.0f,2.0f,-10.0f), RGB_Color(0.0f,0.0f,1.0f), 0.0f, 1.5f);
     Sphere sphere_3 = Sphere(Vec3f(-3.0f,3.0f,-6.0f), RGB_Color(0.3f,0.5f,0.4f), 0.0f, 1.5f);
+    sphere_3.material = Material::REFLECTIVE;
+    Sphere sphere_4 = Sphere(Vec3f(5.0f,-3.0f,-6.0f), RGB_Color(0.3f,0.5f,0.4f), 0.0f, 1.5f);
+    sphere_4.material = Material::REFLECTIVE;
+    Sphere sphere_5 = Sphere(Vec3f(0.0f,0.0f,3.0f), RGB_Color(0.7f,0.2f,0.0f), 0.0f, 1.5f);
 
     // planes
     // center, normal, surface color, emission
     Plane floor = Plane(Vec3f(0.0f,-20.0f,0.0f), Vec3f(0.0f,1.0f,-0.3f), RGB_Color(0.0f,0.5f,0.1f), 0.0f);
+    floor.material = Material::REFLECTIVE;
     Plane far_wall = Plane(Vec3f(0.0f,0.0f,-100.0f), Vec3f(0.0f,0.0f, 1.0f), RGB_Color(0.3f,0.0f,0.6f), 0.0f);
     Plane left_wall = Plane(Vec3f(100.0f,0.0f,0.0f), Vec3f(-1.0f,0.0f, 0.0f), RGB_Color(0.6f,0.8f,0.0f), 0.0f);
-    Plane right_wall = Plane(Vec3f(-100.0f,0.0f,0.0f), Vec3f(1.0f,0.0f, 0.0f), RGB_Color(0.0f,0.6f,0.8f), 0.0f);
+    Plane right_wall = Plane(Vec3f(-100.0f,0.0f,0.0f), Vec3f(1.0f,0.0f, 0.0f), RGB_Color(0.0f,0.5f,0.1f), 0.0f);
     Plane roof = Plane(Vec3f(0.0f,40.0f,0.0f), Vec3f(0.0f,-1.0f, 0.0f), RGB_Color(0.0f,0.6f,0.8f), 0.0f);
 
     // lights
@@ -61,6 +66,8 @@ int main(int argc, char **argv)
     scene->addObject(&sphere_1);
     scene->addObject(&sphere_2);
     scene->addObject(&sphere_3);
+    scene->addObject(&sphere_4);
+    scene->addObject(&sphere_5);
 
     scene->addObject(&floor);
     scene->addObject(&far_wall);
