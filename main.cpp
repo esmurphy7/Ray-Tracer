@@ -55,6 +55,7 @@ int main(int argc, char **argv)
     Plane left_wall = Plane(Vec3f(100.0f,0.0f,0.0f), Vec3f(-1.0f,0.0f, 0.0f), RGB_Color(0.6f,0.8f,0.0f), 0.0f);
     Plane right_wall = Plane(Vec3f(-100.0f,0.0f,0.0f), Vec3f(1.0f,0.0f, 0.0f), RGB_Color(0.0f,0.5f,0.1f), 0.0f);
     Plane roof = Plane(Vec3f(0.0f,40.0f,0.0f), Vec3f(0.0f,-1.0f, 0.0f), RGB_Color(0.0f,0.6f,0.8f), 0.0f);
+    Plane fourth_wall = Plane(Vec3f(0.0f,0.0f, 100.0f), Vec3f(0.0f,0.0f, -1.0f), RGB_Color(0.5f,0.3f,0.0f), 0.0f);
 
     // lights
     // center, surface color, emission, radius
@@ -74,6 +75,7 @@ int main(int argc, char **argv)
     scene->addObject(&left_wall);
     scene->addObject(&right_wall);
     scene->addObject(&roof);
+    scene->addObject(&fourth_wall);
 
     scene->addObject(&light_sphere);
     scene->addObject(&light_sphere2);
