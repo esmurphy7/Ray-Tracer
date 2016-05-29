@@ -155,26 +155,25 @@ void Scene::traceRays()
  */
 RGB_Color Scene::calculateColor(Ray ray)
 {
+    HitRecord hitRec;
+    SceneObject* closestObject = findClosestIntersectingLightOrObject(ray, hitRec);
+
+    // if the ray didn't intersect an object or a light, return background color
+    if (closestObject == nullptr)
+    {
+        return COLOR_BACKGROUND;
+    }
+
+    // if the ray intersected a light directly, return the light's color
+    if(closestObject->isLight())
+    {
+        return closestObject->surfaceColor;
+    }
+
     // iterate over all light sources
     Vec3f combinedColor = Vec3f(0.0f,0.0f,0.0f);
     for(int i=0; i<lights.size(); i++)
     {
-        HitRecord hitRec;
-        SceneObject* closestObject = findClosestIntersectingLightOrObject(ray, hitRec);
-
-        // if the ray didn't intersect an object or a light, ignore it
-        if (closestObject == nullptr)
-        {
-            continue;
-        }
-
-        // if the ray intersected a light directly, contribute its color
-        if(closestObject->isLight())
-        {
-            combinedColor += lights[i]->surfaceColor.toVec3f();
-            continue;
-        }
-
         // create a shadow ray, pointing to the light source
         Vec3f light_direction = Vec3f::unitVector(lights[i]->center - hitRec.point);
         Vec3f origin = hitRec.point + hitRec.normal * 0.01f;
