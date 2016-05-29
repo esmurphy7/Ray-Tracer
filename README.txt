@@ -9,6 +9,7 @@ Features Implemented
  - Multiple light sources
  - Diffuse shading
  - Anti-aliasing
+ - Reflective Surfaces
  - Fixed camera (can be adjusted by changing hardcoded position)
  - Fixed image plane (can be adjusted by changing hardcoded magnifier constant and/or width and height of scene)
 
